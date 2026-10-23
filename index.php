@@ -135,12 +135,12 @@ if ( $numCats == 0 ) { // No categories specified
 		
 		// Check for cached list
 		$redisKey = implode(
-			array(
+			':', array(
 				$redisBaseKey,
 				"https://{$params['baseURL']}/wiki/{$params['query']['cmtitle']}",
 				$params['query']['cmnamespace'] ?? null,
 				$params['query']['cmtype'] ?? null
-			), ':'
+			)
 		);
 
 		$cache = getCache($redisKey);

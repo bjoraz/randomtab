@@ -567,7 +567,7 @@ exit();
 /*
 		The MIT License (MIT)
 
-		Copyright (c) 2020-2024 Ahecht (https://en.wikipedia.org/wiki/User:Ahecht)
+		Copyright (c) 2020-2026 Ahecht (https://en.wikipedia.org/wiki/User:Ahecht)
 
 		Permission is hereby granted, free of charge, to any person
 		obtaining a copy of this software and associated documentation

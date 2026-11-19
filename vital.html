@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Random vital article</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font: 16px sans-serif; max-width: 40em; margin: 3em auto; padding: 0 1em; color: #202122; }
+  #msg { color: #555; }
+  #msg.error { color: #d33; font-weight: bold; }
+</style>
+</head>
+<body>
+<p id="msg">Finding a random article…</p>
+<script>
+// Usage:
+//   vital.html?page=Wikipedia:Vital_articles/Level_4/Physical_sciences&section=Physics
+// Parameters (all optional):
+//   page     page to read links from (default: Level 4 Physical sciences)
+//   section  section name or number; omit for the whole page (default: Physics)
+//   site     Wikimedia host (default: en.wikipedia.org)
+//   debug=1  show the chosen URL instead of redirecting
+//   purge=1  ignore the cached list
+
+const q = new URLSearchParams(location.search);
+const page    = q.get('page')    || 'Wikipedia:Vital_articles/Level_4/Physical_sciences';
+const section = q.has('section') ? q.get('section') : 'Physics';
+const site    = q.get('site')    || 'en.wikipedia.org';
+const debug   = q.has('debug');
+const CACHE_MS = 24 * 60 * 60 * 1000; // 1 day
+
+const msg = document.getElementById('msg');
+function fail(text) { msg.textContent = text; msg.className = 'error'; }
+
+async function api(params) {
+  const url = `https://${site}/w/api.php?` + new URLSearchParams({
+    action: 'parse', format: 'json', formatversion: '2', redirects: '1', origin: '*', ...params
+  });
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('API request failed: ' + r.status);
+  return r.json();
+}
+
+async function getArticles() {
+  const key = `vital:${site}:${page}:${section}`;
+  if (!q.has('purge')) {
+    try {
+      const c = JSON.parse(localStorage.getItem(key));
+      if (c && Date.now() - c.t < CACHE_MS && c.list.length) return c.list;
+    } catch (e) {}
+  }
+
+  let index = null;
+  if (section !== '') {
+    if (/^\d+$/.test(section)) {
+      index = section;
+    } else { // look up the section index by name
+      const d = await api({ page, prop: 'sections' });
+      const want = section.trim().toLowerCase();
+      const s = (d.parse?.sections || []).find(
+        s => s.line.replace(/<[^>]*>/g, '').trim().toLowerCase() === want
+      );
+      if (!s) throw new Error(`Section "${section}" not found on ${page}`);
+      index = s.index;
+    }
+  }
+
+  const params = { page, prop: 'links' };
+  if (index !== null) params.section = index;
+  const d = await api(params);
+  const list = [...new Set(
+    (d.parse?.links || [])
+      .filter(l => l.ns === 0 && l.exists) // articles only, no red links
+      .map(l => l.title)
+  )];
+
+  try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), list })); } catch (e) {}
+  return list;
+}
+
+(async () => {
+  try {
+    if (!/^[a-z\-]*\.?(wikipedia|wikibooks|wikinews|wikiquote|wikisource|wikiversity|wikivoyage|wiktionary|wikimedia|mediawiki)\.org$/i.test(site)) {
+      return fail('Invalid site.');
+    }
+    const list = await getArticles();
+    if (!list.length) return fail('No articles found in that page/section.');
+    const title = list[Math.floor(Math.random() * list.length)];
+    const url = `https://${site}/wiki/` + encodeURIComponent(title.replace(/ /g, '_')).replace(/%2F/g, '/').replace(/%3A/g, ':');
+    if (debug) {
+      msg.innerHTML = `${list.length} articles found.<br>Chosen: <a href="${url}">${url}</a>`;
+    } else {
+      location.replace(url);
+    }
+  } catch (e) {
+    fail(e.message);
+  }
+})();
+</script>
+</body>
+</html>

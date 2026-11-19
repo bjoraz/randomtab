@@ -1,61 +1,60 @@
-# Random page in category
+# randomtab
 
-Tool created by [Ahecht](https://en.wikipedia.org/wiki/User:Ahecht). Source available at [source.php](https://randomincategory.toolforge.org/source.php) or on [Gitlab](https://gitlab.wikimedia.org/toolforge-repos/randomincategory/).
+A random-page new tab for the browser. Each time it opens, it sends you to a random site from a short list, including a random Wikipedia article chosen from a section of a Vital articles page.
 
-The [RandomInCategory](https://randomincategory.toolforge.org) tool is a replacement for [Special:RandomInCategory](https://en.wikipedia.org/wiki/Special:RandomInCategory) that actually chooses a page randomly. Includes options for filtering results by namespace and type. To use on a wiki, replace `[[Special:RandomInCategory/CATEGORY_NAME]]` with `[[toolforge:RandomInCategory/CATEGORY_NAME]]` or `[[toolforge:RandomInCategory/CATEGORY_NAME&OPTIONAL_PARAMETERS]]`.
+Live at: https://bjoraz.github.io/randomtab/
 
-Multiple categories can be specified by adding the `category2=`, `category3=`, etc. parameters to the url, e.g. `[[toolforge:RandomInCategory/Fish&category2=Whales&category3=Crabs&category4=Plankton]]`.
+## Files
 
-By default, the script assumes the category is from [en.wikipedia.org](https://en.wikipedia.org/wiki/). This can be overridden by adding the `server=` parameters to the url, e.g. `&server=commons.wikimedia.org`. Do not include "https://" in the site name. The server must at one of the following Wikimedia-owned domains:
+| File | What it does |
+|---|---|
+| `index.html` | The new tab page. Picks one destination at random and redirects. |
+| `vital.html` | Redirects to a random article from a section of a Wikipedia page (e.g. Vital articles). Pure JavaScript, works on GitHub Pages. |
+| `index.php` | The original Random In Category tool (PHP), kept unchanged from upstream. It does not run on GitHub Pages. |
 
-* mediawiki.org
-* toolforge.org
-* wikibooks.org
-* wikidata.org
-* wikimedia.org
-* wikinews.org
-* wikipedia.org
-* wikiquote.org
-* wikisource.org
-* wikiversity.org
-* wikivoyage.org
-* wiktionary.org
+## Using `vital.html`
 
-Results can be filtered by namespace and type by adding the `namespace=` and `type=` parameters to the url, e.g. `&namespace=2|118&type=page`. These parameters are documented as `cmnamespace` and `cmtype` at [https://www.mediawiki.org/wiki/API:Categorymembers](https://www.mediawiki.org/wiki/API:Categorymembers), but the "|" between namespaces can optionally be replaced with a ";" or "!" for compatibility with wikilinks.
+Default (Level 4 Physical sciences, Physics section):
 
-For performance reasons, the list of items is cached for 10 minutes. To manually refresh the cache, set the `purge=` parameter to any value. Also, any categories with more than 100,000 pages will either redirect to [Special:RandomInCategory](https://en.wikipedia.org/wiki/Special:RandomInCategory) or, if multiple categories were requested, return an error message.
+```
+https://bjoraz.github.io/randomtab/vital.html
+```
 
-Set the `returntype=` parameter to `article` or `subject` to return the associated subject page if the randomly chosen page is a talk page. Similarly, `returntype=talk` will return the associated talk page if the randomly chosen page is a subject page. If the associated page does not exist, the original randomly chosen page will be returned.
+Parameters, all optional:
 
-The script will return the URL of the article and other debugging data instead of actually performing the redirect if the `debug=` parameter is set to any value.
+| Parameter | Meaning | Default |
+|---|---|---|
+| `page` | Page to read links from | `Wikipedia:Vital_articles/Level_4/Physical_sciences` |
+| `section` | Section name or number; leave empty (`section=`) for the whole page | `Physics` |
+| `site` | Wikimedia host | `en.wikipedia.org` |
+| `debug` | If set, shows how many articles were found and the chosen URL instead of redirecting | off |
+| `purge` | If set, ignores the cached article list | off |
 
-Any other parameters in the URL will be passed on to the target page.
+Examples:
 
-#### Examples:
+```
+vital.html?section=Astronomy
+vital.html?page=Wikipedia:Vital_articles/Level_4/Biological_and_health_sciences&section=Biology
+vital.html?section=Physics&debug=1
+```
 
-Pending enwiki AFC Drafts in Draft: or User: namespaces:
-: [/Pending_AfC_submissions?server=en.wikipedia.org&namespace=2|118&type=page](https://randomincategory.toolforge.org/Pending_AfC_submissions?server=en.wikipedia.org&namespace=2|118&type=page)
+Notes:
 
-Categories about US States:
-: [/States_of_the_United_States?&type=subcat](https://randomincategory.toolforge.org/States_of_the_United_States?&type=subcat)
+- Sections are matched by name, so edits to the Vital articles page won't break the link. A section number also works.
+- A section includes its subsections.
+- Only existing articles are used (no red links, no project pages).
+- The article list is cached in the browser's `localStorage` for one day.
 
-Featured pictures on Wikimedia Commons:
-: [/Featured_pictures_on_Wikimedia_Commons?server=commons.wikimedia.org&type=file](https://randomincategory.toolforge.org/Featured_pictures_on_Wikimedia_Commons?server=commons.wikimedia.org&type=file)
+## Changing the new tab destinations
 
-Page with the Wikiproject Medicine banner on its talk page:
-: [/All WikiProject Medicine articles?returntype=article](/All WikiProject Medicine articles?returntype=article)
+Edit the `pages` array in `index.html`.
 
-Edit an article about a primary color:
-: [/Primary_colors?type=page&action=edit](https://randomincategory.toolforge.org/Primary_colors?type=page&action=edit)
+## Setting it as your new tab
 
----
+Point your browser's new tab (or home page) at the live URL, using a new-tab extension if your browser needs one.
 
-The MIT License
+## Credits and license
 
-Copyright © 2020-2026 [Ahecht](https://en.wikipedia.org/wiki/User:Ahecht)
+Based on [randomincategory](https://gitlab.wikimedia.org/toolforge-repos/randomincategory) by [Ahecht](https://en.wikipedia.org/wiki/User:Ahecht), used under the MIT License. For documentation of the original PHP tool, see the [upstream repository](https://gitlab.wikimedia.org/toolforge-repos/randomincategory) or [randomincategory.toolforge.org](https://randomincategory.toolforge.org).
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Released under the MIT License. See [LICENSE](LICENSE). The original copyright notice is retained as required.

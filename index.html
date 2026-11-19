@@ -4,11 +4,9 @@
   const pages = [
     "https://monkeytype.com/",
     "https://1001albumsgenerator.com/bjoraz",
-    "vital.html?page=Wikipedia:Vital_articles/Level_4/Mathematics",
-    "vital.html",
-    <!-- default: physics level 4
-    "vital.html?section=Astronomy",
-    -->
+    "vital.html?page=Wikipedia:Vital_articles/Level_4/Mathematics&section=",
+    "vital.html", // default: physics level 4
+    // "vital.html?section=Astronomy",
   ];
   location.replace(pages[Math.floor(Math.random() * pages.length)]);
 </script>
